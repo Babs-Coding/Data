@@ -1,0 +1,53 @@
+from sklearn import svm, feature_selection, linear_model
+num_cols = df.select_dtypes(include=[np.number]).copy()
+feature_cols = df.columns.values.tolist()
+feature_cols.remove('SALE PRICE')
+feature_cols.remove('NEIGHBORHOOD')
+feature_cols.remove('TAX CLASS AT PRESENT')
+feature_cols.remove('BLOCK')
+feature_cols.remove('LOT')
+feature_cols.remove('ADDRESS')
+feature_cols.remove('ZIP CODE')
+feature_cols.remove('YEAR BUILT')
+feature_cols.remove('TAX CLASS AT TIME OF SALE')
+feature_cols.remove('SALE DATE')
+feature_cols.remove('BUILDING CLASS AT TIME OF SALE')
+feature_cols.remove('BUILDING CLASS CATEGORY')
+feature_cols.remove('BUILDING CLASS AT PRESENT')
+feature_cols.remove('YEAR SOLD')
+#feature_cols.remove('')
+
+#feature_cols.remove('')
+
+
+
+XO =df[feature_cols]
+YO = df['SALE PRICE']
+estimator = svm.SVR(kernel="linear")
+selector = feature_selection.RFE(estimator, 2,step=1)
+selector = selector.fit(XO, YO)
+select_features = np.array(feature_cols)[selector.ranking_ == 1].tolist()
+print(select_features)
+
+////
+Gross = 0.1882
+Land = 0.1566
+////
+
+
+
+from sklearn.model_selection import train_test_split
+X = df[select_features]
+Y = df['SALE PRICE']
+trainX, testX, trainY, testY = train_test_split(X, Y, test_size=0.2)
+lm = linear_model.LinearRegression()
+lm.fit(trainX, trainY)
+# Inspect the calculated model equations
+print("Y-axis intercept {:6.4f}".format(lm.intercept_))
+print("Weight coefficients:")
+for feat, coef in zip(select_features, lm.coef_):
+
+    print(" {:>20}: {:6.4f}".format(feat, coef))
+# The value of R^2
+print("R squared for the training data is {:4.3f}".format(lm.score(trainX, trainY)))
+print("Score against test data: {:4.3f}".format(lm.score(testX, testY)))

@@ -1,0 +1,131 @@
+normalized
+
+def normalize(df):
+    #selects numerical columns
+    num_cols = df.select_dtypes(include=[np.number]).copy()
+    num_cols.drop('SALE PRICE', axis='columns', inplace=True)
+    num_cols.drop('ZIP CODE', axis='columns', inplace=True)
+    num_cols.drop('BLOCK', axis='columns', inplace=True)
+    num_cols.drop('YEAR SOLD', axis='columns', inplace=True)
+    num_cols.drop('YEAR BUILT', axis='columns', inplace=True)
+    num_cols.drop('TAX CLASS AT TIME OF SALE', axis='columns', inplace=True)
+    df_norm = ((num_cols-num_cols.min())/(num_cols.max()-num_cols.min()))
+    return df_norm
+
+data_norm = normalize(df)
+data_norm.describe()
+
+from sklearn.model_selection import train_test_split
+df_train, df_test = train_test_split(data_norm, test_size=0.3)
+print("Training size: {}, Testing size: {}".format(len(df_train), len(df_test)))
+print("Samples: {} Features: {}".format(*df_train.shape))
+
+
+from sklearn import svm, feature_selection, linear_model
+num_cols = df.select_dtypes(include=[np.number]).copy()
+feature_cols = df.columns.values.tolist()
+feature_cols.remove('SALE PRICE')
+feature_cols.remove('NEIGHBORHOOD')
+feature_cols.remove('TAX CLASS AT PRESENT')
+feature_cols.remove('BLOCK')
+feature_cols.remove('LOT')
+feature_cols.remove('ADDRESS')
+feature_cols.remove('ZIP CODE')
+feature_cols.remove('YEAR BUILT')
+feature_cols.remove('TAX CLASS AT TIME OF SALE')
+feature_cols.remove('SALE DATE')
+feature_cols.remove('BUILDING CLASS AT TIME OF SALE')
+feature_cols.remove('BUILDING CLASS CATEGORY')
+feature_cols.remove('BUILDING CLASS AT PRESENT')
+feature_cols.remove('YEAR SOLD')
+#feature_cols.remove('')
+
+#feature_cols.remove('')
+
+
+
+XO =df[feature_cols]
+YO = df['SALE PRICE']
+estimator = svm.SVR(kernel="linear")
+selector = feature_selection.RFE(estimator, 2,step=1)
+selector = selector.fit(XO, YO)
+select_features = np.array(feature_cols)[selector.ranking_ == 1].tolist()
+print(select_features)
+
+
+
+
+
+from sklearn.model_selection import train_test_split
+X = df[select_features]
+Y = df['SALE PRICE']
+trainX, testX, trainY, testY = train_test_split(X, Y, test_size=0.2)
+lm = linear_model.LinearRegression()
+lm.fit(trainX, trainY)
+# Inspect the calculated model equations
+print("Y-axis intercept {:6.4f}".format(lm.intercept_))
+print("Weight coefficients:")
+for feat, coef in zip(select_features, lm.coef_):
+
+    print(" {:>20}: {:6.4f}".format(feat, coef))
+# The value of R^2
+print("R squared for the training data is {:4.3f}".format(lm.score(trainX, trainY)))
+print("Score against test data: {:4.3f}".format(lm.score(testX, testY)))
+
+
+
+
+
+
+
+
+
+import statsmodels.formula.api as smf
+def model(df):
+    #Columns are renamed to work within the formula
+    df.rename(columns = {'SALE PRICE':'SALE_PRICE'}, inplace= True)
+    df.rename(columns = {'GROSS SQUARE FEET':'GROSS_SQUARE_FEET'}, inplace= True)
+    df.rename(columns = {'LAND SQUARE FEET':'LAND_SQUARE_FEET'}, inplace= True)
+    df.rename(columns = {'TOTAL UNITS':'TOTAL_UNITS'}, inplace= True)
+    df.rename(columns = {'RESIDENTIAL UNITS':'RESIDENTIAL_UNITS'}, inplace= True)
+    model = smf.ols(formula='SALE_PRICE ~ GROSS_SQUARE_FEET+LAND_SQUARE_FEET+TOTAL_UNITS+RESIDENTIAL_UNITS', data=df).fit()
+    print(model.params)
+    print('R Squared = {}'.format(model.rsquared))
+    print(model.summary())
+
+model(df)
+
+
+
+
+
+list_r = ['SALE PRICE','NEIGHBORHOOD','TAX CLASS AT PRESENT','BLOCK','LOT','ADDRESS','ZIP CODE','YEAR BUILT',
+          'TAX CLASS AT TIME OF SALE','SALE DATE','BUILDING CLASS AT TIME OF SALE','BUILDING CLASS CATEGORY',
+         'BUILDING CLASS AT PRESENT']
+
+
+
+
+
+df['SALE PRICE'] = df['SALE PRICE'].replace(0, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(1, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(10, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(39432, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(61000, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(60500, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(57900, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(58900, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(49705, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(49500, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(83000, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(38160, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(2, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(284429879, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(490, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(59289, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(42400, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(42800, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(53205, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(48205, np.nan)
+df['SALE PRICE'] = df['SALE PRICE'].replace(500, np.nan)
+df.dropna(subset = ['SALE PRICE'], inplace=True)

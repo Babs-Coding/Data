@@ -1,0 +1,27 @@
+Python Logs
+INDENTATION IS IMPORTANT!!!
+
+2//6 = 0
+2/6 = 0.33333
+56%3 = 2
+12.*(2-6)² = Syntax error (invalid character identifier on ²)
+1 == 1.0 = True
+3 >= 2 and 3 <= 4 = True
+3 >= 5 or 3 <= 4 = True
+
+*Python is an object-oriented programming language so everything is an object and methods and attributes are accessed via the dot Syntax
+
+x = 8.5
+type(x)
+x.is_integer()
+= False because x is a float
+
+print(type(8))
+= <type> 'int'   *(This happens because unlike in java variables do not need to be declared)
+
+
+Anything taken as input from the user will automatically be made a string so you need to change the type in the brackets
+TEMPRATURE CONVERTER
+celcius = float(input("Enter a number: "))
+farenheight =9/5 * celcius + 32
+print(farenheight)
